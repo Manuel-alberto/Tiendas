@@ -1,0 +1,34 @@
+<resources>
+    <string name="app_name">Stores</string>
+    <string name="arg_id" translatable="false">key_id</string>
+
+    <string name="dialog_delete_title">Delete Store?</string>
+    <string name="dialog_delete_confirm">Delete</string>
+    <string name="dialog_delete_cancel">Cancel</string>
+    <string name="dialog_option_title">What would you like to do?</string>
+
+
+    <string name="description_img_photo">Picture store</string>
+    <string name="store_add">create store</string>
+
+    <string name="edit_store_title_edit">Edit store</string>
+    <string name="store_message_update_success">Store acutalizada!!</string>
+    <string name="store_message_valid">Revise los campos requeridos</string>
+    <string name="edit_store_message_success">Tienda agregada correctamente</string>
+    <string name="edit_store_title_add">Crear tienda</string>
+
+    <string name="hint_name">Nombre de la tienda</string>
+    <string name="hint_phone">Télefono</string>
+    <string name="hint_website">URL del web site</string>
+    <string name="hint_photo_url">URL de la imagen</string>
+
+    <string name="herlper_require">Requerido</string>
+
+    <string name="menu_save">Save</string>
+
+    <string name="main_error_no_website">Esta tienda no cuenta con un sitio web</string>
+    <string name="main_error_no_resolve">No se encontro ninguna app compatible</string>
+
+    <string name="option_item_call">To call</string>
+    <string name="option_item_visitweb">Got to web</string>
+</resources>
