@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Stores</string>
+    <string name="app_name">Stores MVVM</string>
     <string name="arg_id" translatable="false">key_id</string>
 
     <string name="dialog_delete_title">Delete Store?</string>

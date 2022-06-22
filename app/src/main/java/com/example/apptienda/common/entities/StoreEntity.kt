@@ -1,4 +1,4 @@
-package com.example.apptienda
+package com.example.apptienda.common.entities
 
 import androidx.room.Entity
 import androidx.room.PrimaryKey
@@ -10,6 +10,8 @@ data class StoreEntity(@PrimaryKey (autoGenerate = true) var id:Long = 0,
                        var website:String = "",
                        var photoUrl : String,
                        var isFasvorite:Boolean = false){
+
+    constructor() : this(name = "", phone = "", photoUrl = "")
 
     override fun equals(other: Any?): Boolean {
         if (this === other) return true

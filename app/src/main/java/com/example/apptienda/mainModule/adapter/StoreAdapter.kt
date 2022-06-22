@@ -1,4 +1,4 @@
-package com.example.apptienda
+package com.example.apptienda.mainModule.adapter
 
 import android.content.Context
 import android.view.LayoutInflater
@@ -6,6 +6,8 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
+import com.example.apptienda.R
+import com.example.apptienda.common.entities.StoreEntity
 import com.example.apptienda.databinding.ItemStoreBinding
 
 class StoreAdapter(private var stores:MutableList<StoreEntity>, private var listener: OnClickListener) :
@@ -32,18 +34,23 @@ class StoreAdapter(private var stores:MutableList<StoreEntity>, private var list
     override fun getItemCount(): Int = stores.size
 
     fun add(storeEntity: StoreEntity) {
-        if(!stores.contains(storeEntity)){
-            stores.add(storeEntity)
-            notifyItemInserted(stores.size-1)
+        if (storeEntity.id != 0L){
+            if(!stores.contains(storeEntity)){
+                stores.add(storeEntity)
+                notifyItemInserted(stores.size-1)
+            }else{
+                update(storeEntity)
+            }
         }
     }
 
-    fun setStores(stores: MutableList<StoreEntity>) {
-        this.stores=stores
+    fun setStores(stores: List<StoreEntity>) {
+        this.stores=stores as MutableList<StoreEntity>
         notifyDataSetChanged()
     }
 
-    fun update(storeEntity: StoreEntity) {
+    private fun update(storeEntity: StoreEntity) {
+
         val index = stores.indexOf(storeEntity)
         if(index!=-1){
             stores.set(index, storeEntity)
@@ -51,20 +58,12 @@ class StoreAdapter(private var stores:MutableList<StoreEntity>, private var list
         }
     }
 
-    fun Delete(storeEntity: StoreEntity) {
-        val index = stores.indexOf(storeEntity)
-        if(index!=-1){
-            stores.removeAt(index)
-            notifyItemRemoved(index)
-        }
-    }
-
     inner class viewHolder(view: View):RecyclerView.ViewHolder(view){
         val binding=ItemStoreBinding.bind(view)
 
-        fun setListener(storeEntity:StoreEntity){
+        fun setListener(storeEntity: StoreEntity){
             with(binding.root){
-                setOnClickListener { listener.onClick(storeEntity.id) }
+                setOnClickListener { listener.onClick(storeEntity) }
                 setOnLongClickListener{
                     listener.onDeleteStore(storeEntity)
                     true

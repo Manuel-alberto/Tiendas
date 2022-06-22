@@ -23,8 +23,8 @@ android {
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
         }
     }
-    viewBinding{
-        enabled = true
+    buildFeatures{
+        viewBinding true
     }
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
@@ -37,6 +37,7 @@ android {
 
 def roomVersion = "2.4.2"
 def anko_version = "0.10.8"
+def lifecycle_version = "2.5.0-rc01"
 
 dependencies {
 
@@ -50,6 +51,9 @@ dependencies {
     implementation("androidx.room:room-runtime:$roomVersion")
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
     annotationProcessor("androidx.room:room-compiler:$roomVersion")
+
+    // ViewModel
+    implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:$lifecycle_version")
 
     // To use Kotlin annotation processing tool (kapt)
     kapt("androidx.room:room-compiler:$roomVersion")

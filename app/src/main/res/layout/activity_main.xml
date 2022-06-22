@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:id="@+id/containerMain"
-    tools:context=".MainActivity">
+    tools:context=".mainModule.MainActivity">
 
     <!-- <com.google.android.material.button.MaterialButton
         android:id="@+id/btnSave"

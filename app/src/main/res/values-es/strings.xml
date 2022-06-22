@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <string name="app_name">App tienda</string>
+    <string name="app_name">App tienda MVVM</string>
     <string name="description_img_photo">imagen de la tienda</string>
     <string name="store_add">crear tienda</string>
     <!-- TODO: Remove or change this placeholder text -->
