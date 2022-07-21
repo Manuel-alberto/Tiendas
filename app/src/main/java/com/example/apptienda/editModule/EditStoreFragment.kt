@@ -1,27 +1,39 @@
-package com.example.apptienda
+package com.example.apptienda.editModule
 
 import android.content.Context
 import android.os.Bundle
 import android.text.Editable
 import android.view.*
 import android.view.inputmethod.InputMethodManager
-import android.widget.Toast
 import androidx.core.widget.addTextChangedListener
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.ViewModelProvider
 import com.bumptech.glide.Glide
 import com.bumptech.glide.load.engine.DiskCacheStrategy
+import com.example.apptienda.R
+import com.example.apptienda.common.entities.StoreEntity
+import com.example.apptienda.common.utils.TypeError
 import com.example.apptienda.databinding.FragmentEditStoreBinding
+import com.example.apptienda.editModule.viewModel.EditStoreViewModel
+import com.example.apptienda.mainModule.MainActivity
 import com.google.android.material.snackbar.Snackbar
 import com.google.android.material.textfield.TextInputLayout
-import org.jetbrains.anko.doAsync
-import org.jetbrains.anko.uiThread
 
 class EditStoreFragment : Fragment() {
 
     private lateinit var mBinding:FragmentEditStoreBinding
     private var mActivity : MainActivity?=null
     private var mIsEditMode:Boolean=false
-    private var mStoreEntity:StoreEntity?=null
+    private lateinit var mStoreEntity: StoreEntity
+
+    private lateinit var mEditStoreViewModel: EditStoreViewModel
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+
+        mEditStoreViewModel = ViewModelProvider(requireActivity())[EditStoreViewModel::class.java]
+
+    }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
         mBinding= FragmentEditStoreBinding.inflate(inflater, container, false)
@@ -32,20 +44,50 @@ class EditStoreFragment : Fragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        val id = arguments?.getLong(getString(R.string.arg_id), 0)
-
-        if(id!=null && id!=0L) {
-            mIsEditMode=true
-            getSrote(id)
-        }else{
-            mIsEditMode = false
-            mStoreEntity = StoreEntity(name = "", phone = "", website = "", photoUrl = "")
-        }
-
-        setupActionBar()
-
+        setupViewModel()
         setupTextFields()
 
+    }
+
+    private fun setupViewModel() {
+        mEditStoreViewModel.getStoreSelected().observe(viewLifecycleOwner){
+            mStoreEntity = it ?: StoreEntity()
+            if (it != null) {
+                mIsEditMode = true
+                setUIStore(it)
+            } else {
+                mIsEditMode = false
+            }
+
+            setupActionBar()
+        }
+
+
+        mEditStoreViewModel.getTypeError().observe(viewLifecycleOwner){typeError->
+            if (typeError != TypeError.NONE){
+                val msgRes = when (typeError){
+                    TypeError.GET -> getString(R.string.main_error_get)
+                    TypeError.INSERT -> getString(R.string.main_error_insert)
+                    TypeError.UPDATE -> getString(R.string.main_error_update)
+                    TypeError.DELETE -> getString(R.string.main_error_delete)
+                    else -> getString(R.string.main_error_undefind)
+                }
+                Snackbar.make(mBinding.root, msgRes, Snackbar.LENGTH_SHORT).show()
+            }
+        }
+
+        mEditStoreViewModel.getResult().observe(viewLifecycleOwner){result ->
+            hideKeyboard()
+            when(result){
+                is StoreEntity ->{
+                    val msgRes = if (result.id == 0L) getString(R.string.edit_store_message_success)
+                                else getString(R.string.store_message_update_success)
+                    mEditStoreViewModel.setStoreSelected(mStoreEntity)
+                    Snackbar.make(mBinding.root, msgRes, Snackbar.LENGTH_SHORT).show()
+                    mActivity?.onBackPressed()
+                }
+            }
+        }
     }
 
     private fun setupActionBar() {
@@ -78,15 +120,6 @@ class EditStoreFragment : Fragment() {
         into(mBinding.imgPhoto)
     }
 
-    private fun getSrote(id: Long) {
-        doAsync {
-            mStoreEntity=StoreApplication.database.storeDao().getStoreById(id)
-            uiThread {
-                if(mStoreEntity!=null) setUIStore(mStoreEntity!!)
-            }
-        }
-    }
-
     private fun setUIStore(storeEntity: StoreEntity) {
         with(mBinding){
             etName.text = storeEntity.name.editable()
@@ -110,31 +143,17 @@ class EditStoreFragment : Fragment() {
                 mActivity?.onBackPressed()
                 true
             }
-            R.id.action_save->{
-                if (mStoreEntity != null && validateFields(mBinding.tilPhoto, mBinding.tilPhone, mBinding.tilName)){
-                    with(mStoreEntity!!){
+            R.id.action_save ->{
+                if (validateFields(mBinding.tilPhoto, mBinding.tilPhone, mBinding.tilName)){
+                    with(mStoreEntity){
                         name = mBinding.etName.text.toString().trim()
                         phone = mBinding.etPhone.text.toString().trim()
                         website = mBinding.etPhotoUrl.text.toString().trim()
                         photoUrl = mBinding.etPhotoUrl.text.toString().trim()
                     }
-                    doAsync {
-                        if(mIsEditMode)StoreApplication.database.storeDao().updateStore(mStoreEntity!!)
-                        else mStoreEntity!!.id = StoreApplication.database.storeDao().addStore(mStoreEntity!!)
+                    if(mIsEditMode) mEditStoreViewModel.updateStore(mStoreEntity)
+                    else mEditStoreViewModel.saveStore(mStoreEntity)
 
-                        uiThread {
-                            hideKeyboard()
-                            if (mIsEditMode) {
-                                mActivity?.updateStore(mStoreEntity!!)
-                                Snackbar.make(mBinding.root, R.string.store_message_update_success, Snackbar.LENGTH_SHORT).show()
-                            }else{
-                                mActivity?.addStore(mStoreEntity!!)
-                                hideKeyboard()
-                                Toast.makeText(mActivity, getString(R.string.edit_store_message_success), Toast.LENGTH_SHORT).show()
-                                mActivity?.onBackPressed()
-                            }
-                        }
-                    }
                 }
                 true
             }
@@ -156,29 +175,9 @@ class EditStoreFragment : Fragment() {
         return isValid
     }
 
-    private fun validateFields(): Boolean {
-        var isValid=true
-        if(mBinding.etPhotoUrl.text.toString().trim().isEmpty()) {
-            mBinding.tilPhoto.error=getString(R.string.herlper_require)
-            mBinding.etPhotoUrl.requestFocus()
-            isValid=false
-        }
-        if (mBinding.etPhone.text.toString().trim().isEmpty()) {
-            mBinding.tilPhone.error=getString(R.string.herlper_require)
-            mBinding.etPhone.requestFocus()
-            isValid=false
-        }
-        if(mBinding.etName.text.toString().trim().isEmpty()) {
-            mBinding.tilName.error=getString(R.string.herlper_require)
-            mBinding.etName.requestFocus()
-            isValid=false
-        }
-        return isValid
-    }
-
     private fun hideKeyboard(){
-        val imm=mActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
-        imm.hideSoftInputFromWindow(requireView().windowToken, 0)
+        val imm=mActivity?.getSystemService(Context.INPUT_METHOD_SERVICE) as? InputMethodManager
+        imm?.hideSoftInputFromWindow(requireView().windowToken, 0)
     }
 
     override fun onDestroyView() {
@@ -189,8 +188,9 @@ class EditStoreFragment : Fragment() {
     override fun onDestroy() {
         mActivity?.supportActionBar?.setDisplayHomeAsUpEnabled(false)
         mActivity?.supportActionBar?.title=getString(R.string.app_name)
+        mEditStoreViewModel.setTypeError(TypeError.NONE)
         setHasOptionsMenu(false)
-        mActivity?.hideFab(true)
+        mEditStoreViewModel.setResult(Any())
         super.onDestroy()
     }
 

@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Stores</string>
+    <string name="app_name">Stores MVVM</string>
     <string name="arg_id" translatable="false">key_id</string>
 
     <string name="dialog_delete_title">Delete Store?</string>
@@ -31,4 +31,9 @@
 
     <string name="option_item_call">To call</string>
     <string name="option_item_visitweb">Got to web</string>
+    <string name="main_error_get">Error al consultar datos</string>
+    <string name="main_error_insert">Error al insertar datos</string>
+    <string name="main_error_update">Error al actualizar datos</string>
+    <string name="main_error_delete">Error al borrar datos</string>
+    <string name="main_error_undefind">Error desconocido</string>
 </resources>
