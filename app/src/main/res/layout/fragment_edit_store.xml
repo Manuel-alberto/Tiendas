@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     tools:context=".editModule.EditStoreFragment"
-    android:background="@color/black"
+    android:background="?android:attr/colorBackground"
     android:id="@+id/fragEditStore">
 
     <androidx.appcompat.widget.LinearLayoutCompat

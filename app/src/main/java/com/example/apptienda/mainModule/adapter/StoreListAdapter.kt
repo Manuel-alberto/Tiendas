@@ -4,26 +4,29 @@ import android.content.Context
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.recyclerview.widget.DiffUtil
+import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bumptech.glide.Glide
 import com.example.apptienda.R
 import com.example.apptienda.common.entities.StoreEntity
 import com.example.apptienda.databinding.ItemStoreBinding
 
-class StoreAdapter(private var stores:MutableList<StoreEntity>, private var listener: OnClickListener) :
-    RecyclerView.Adapter<StoreAdapter.viewHolder>() {
+class StoreListAdapter(private var listener: OnClickListener) :
+    ListAdapter<StoreEntity, RecyclerView.ViewHolder>(StoreDiffCallback()) {
 
     private lateinit var mContext:Context
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): viewHolder {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
         mContext= parent.context
         val view= LayoutInflater.from(mContext).inflate(R.layout.item_store, parent, false)
-        return viewHolder(view)
+        return ViewHolder(view)
     }
 
-    override fun onBindViewHolder(holder: viewHolder, position: Int) {
-        val store=stores.get(position)
-        with(holder){
+
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
+        val store = getItem(position)
+        with(holder as ViewHolder){
             setListener(store)
             binding.tvName.text=store.name
             binding.chFavorite.isChecked=store.isFasvorite
@@ -31,34 +34,7 @@ class StoreAdapter(private var stores:MutableList<StoreEntity>, private var list
         }
     }
 
-    override fun getItemCount(): Int = stores.size
-
-    fun add(storeEntity: StoreEntity) {
-        if (storeEntity.id != 0L){
-            if(!stores.contains(storeEntity)){
-                stores.add(storeEntity)
-                notifyItemInserted(stores.size-1)
-            }else{
-                update(storeEntity)
-            }
-        }
-    }
-
-    fun setStores(stores: MutableList<StoreEntity>) {
-        this.stores=stores
-        notifyDataSetChanged()
-    }
-
-    private fun update(storeEntity: StoreEntity) {
-
-        val index = stores.indexOf(storeEntity)
-        if(index!=-1){
-            stores.set(index, storeEntity)
-            notifyItemChanged(index)
-        }
-    }
-
-    inner class viewHolder(view: View):RecyclerView.ViewHolder(view){
+    inner class ViewHolder(view: View):RecyclerView.ViewHolder(view){
         val binding=ItemStoreBinding.bind(view)
 
         fun setListener(storeEntity: StoreEntity){
@@ -73,6 +49,17 @@ class StoreAdapter(private var stores:MutableList<StoreEntity>, private var list
                 listener.onFavoriteStore(storeEntity)
             }
         }
+    }
+
+    class StoreDiffCallback : DiffUtil.ItemCallback<StoreEntity>(){
+        override fun areItemsTheSame(oldItem: StoreEntity, newItem: StoreEntity): Boolean {
+            return oldItem.id == newItem.id
+        }
+
+        override fun areContentsTheSame(oldItem: StoreEntity, newItem: StoreEntity): Boolean {
+            return oldItem == newItem
+        }
+
     }
 
 }

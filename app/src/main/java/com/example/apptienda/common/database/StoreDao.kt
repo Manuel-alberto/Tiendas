@@ -1,5 +1,6 @@
 package com.example.apptienda.common.database
 
+import androidx.lifecycle.LiveData
 import androidx.room.*
 import com.example.apptienda.common.entities.StoreEntity
 
@@ -7,18 +8,18 @@ import com.example.apptienda.common.entities.StoreEntity
 interface StoreDao {
 
     @Query("SELECT * FROM StoreEntity")
-    fun getAllStore():MutableList<StoreEntity>
+    fun getAllStore(): LiveData<MutableList<StoreEntity>>
+
+    @Query("SELECT * FROM StoreEntity WHERE id=:id")
+    fun getStoreById(id : Long) : LiveData<StoreEntity>
 
     @Insert
-    fun addStore(storeEntity: StoreEntity) : Long
+    suspend fun addStore(storeEntity: StoreEntity) : Long
 
     @Update
-    fun updateStore(storeEntity: StoreEntity)
+    suspend fun updateStore(storeEntity: StoreEntity): Int
 
     @Delete
-    fun deleteStore(storeEntity: StoreEntity)
-    
-    @Query("SELECT * FROM StoreEntity WHERE id=:id")
-    fun getStoreById(id : Long) : StoreEntity
+    suspend fun deleteStore(storeEntity: StoreEntity): Int
 
 }
