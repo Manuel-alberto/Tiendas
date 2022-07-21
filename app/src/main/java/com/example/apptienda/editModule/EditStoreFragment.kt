@@ -45,7 +45,6 @@ class EditStoreFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         setupViewModel()
-
         setupTextFields()
 
     }
